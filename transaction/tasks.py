@@ -41,4 +41,4 @@ def perform_transaction_task(transaction_id, sender_wallet_id, recipient_wallet_
         if transaction_obj:
             transaction_obj.status = 'failed'
             transaction_obj.save()
-        raise e
+        return  False
