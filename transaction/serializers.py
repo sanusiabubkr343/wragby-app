@@ -31,29 +31,35 @@ class PerformTransferSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
-        amount=validated_data.get('amount')
-        sender_wallet=validated_data.get('sender_wallet')
-        recipient_wallet=validated_data.get('recipient_wallet')
+        from transaction.tasks import perform_transaction_task
+
+        amount = validated_data.get('amount')
+        sender_wallet = validated_data.get('sender_wallet')
+        recipient_wallet = validated_data.get('recipient_wallet')
+
         with db_transaction.atomic():
-            Transaction.objects.create(
+            transaction_obj = Transaction.objects.create(
                 sender=validated_data.get('sender'),
                 receiver=validated_data.get('receiver'),
                 amount=validated_data.get('amount'),
                 status='pending'
             )
 
-            sender_wallet_id=sender_wallet.id
-            recipient_wallet=recipient_wallet.id
-        initiated_tx =perform_transaction(sender_wallet_id,recipient_wallet,amount)
+            sender_wallet_id = sender_wallet.id
+            recipient_wallet_id = recipient_wallet.id
 
-        if not initiated_tx:
-            return{
-                "message": "Transaction failed",
-                "success": False,
-            }
+        # Queue the transaction as a background task
+        perform_transaction_task.delay(
+            transaction_obj.id,
+            sender_wallet_id,
+            recipient_wallet_id,
+            amount
+        )
+
         return {
             "message": "Transaction initiated successfully",
             "success": True,
+            "transaction_id": transaction_obj.id,
         }
 
 

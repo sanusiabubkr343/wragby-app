@@ -1,9 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from transaction.views import TransactionViewSet
+from wallet.views import WalletViewSets
 
 router = DefaultRouter()
-router.register(r'transactions', TransactionViewSet, basename='transaction')
+router.register(r'wallets', WalletViewSets, basename='wallet')
 
 urlpatterns = [
     path('', include(router.urls)),
