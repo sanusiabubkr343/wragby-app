@@ -20,6 +20,9 @@ class PerformTransferSerializer(serializers.Serializer):
         if sender_wallet.balance < data.get('amount'):
             raise serializers.ValidationError({"balance": "Insufficient balance"})
 
+        if sender_wallet.user.transaction_limit < data.get('amount'):
+            raise serializers.ValidationError({"transaction_limit": "Transaction limit exceeded"})
+
         if recipient_wallet == sender_wallet:
             raise serializers.ValidationError({"recipient": "Sender and recipient cannot be the same"})
 
