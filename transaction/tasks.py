@@ -32,7 +32,7 @@ def perform_transaction_task(transaction_id, sender_wallet_id, recipient_wallet_
             recipient_user.save()
 
             # Update transaction status to completed
-            transaction_obj.status = 'completed'
+            transaction_obj.status = 'successful'
             transaction_obj.save()
 
         return True
